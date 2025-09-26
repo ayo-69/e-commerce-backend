@@ -10,6 +10,7 @@ import (
 	"e-commerce/internal/auth"
 	"e-commerce/internal/models"
 	"e-commerce/internal/routes"
+
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/sqlite"
@@ -75,4 +76,50 @@ func TestUserRoutes(t *testing.T) {
 	json.Unmarshal(w.Body.Bytes(), &profile)
 
 	assert.Equal(t, "testuser2", profile.Name)
+}
+
+func TestGetProductsRoutes(t *testing.T) {
+	r, db := setupTestRouter()
+
+	// Clean up the database after the test
+	sqlDB, _ := db.DB()
+	defer sqlDB.Close()
+
+	// Seed a product
+	product := models.Product{
+		Name:        "Test Product",
+		Description: "A test product",
+		Price:       1000,
+		Stock:       10,
+		Category:    "Test Category",
+		CreatedAt:   db.NowFunc(),
+	}
+	db.Create(&product)
+
+	// Test GET /products
+	req, _ := http.NewRequest("GET", "/products", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var products []models.Product
+	err := json.Unmarshal(w.Body.Bytes(), &products)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, products)
+	if len(products) > 0 {
+		assert.Equal(t, "Test Product", products[0].Name)
+	}
+
+	// Test GET /products/:id
+	req, _ = http.NewRequest("GET", "/products/1", nil)
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var singleProduct models.Product
+	err = json.Unmarshal(w.Body.Bytes(), &singleProduct)
+	assert.NoError(t, err)
+	assert.Equal(t, "Test Product", singleProduct.Name)
 }

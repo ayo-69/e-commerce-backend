@@ -8,6 +8,6 @@ type Product struct {
 	Description string `json:"description"`
 	Price uint `json:"price"`
 	Stock uint `json:"stock"`
-	Category string `json"category"`
+	Category string `json:"category"`
 	CreatedAt time.Time `json:"created_at"`
 }
