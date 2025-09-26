@@ -2,6 +2,8 @@ package product
 
 import (
 	"e-commerce/internal/models"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -20,17 +22,77 @@ func (p *Product) ListProducts(c *gin.Context) {
 }
 
 func (p *Product) GetProduct(c *gin.Context) {
-	// Implementation for getting a single product
+	id := c.Param("id")
+	var product models.Product
+	if err := p.DB.First(&product, id).Error; err != nil {
+		c.JSON(404, gin.H{"error": "Product not found"})
+		return
+	}
+	c.JSON(200, product)
 }
 
 func (p *Product) CreateProduct(c *gin.Context) {
-	// Implementation for creating a new product
+	var input models.Product
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(400, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	product := models.Product{
+		Name:        input.Name,
+		Description: input.Description,
+		Price:       input.Price,
+		Stock:       input.Stock,
+		Category:    input.Category,
+		CreatedAt:   time.Now(),
+		// Add other fields as needed
+	}
+
+	if err := p.DB.Create(&product).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Failed to create product"})
+		return
+	}
+	c.JSON(201, product)
 }
 
 func (p *Product) UpdateProduct(c *gin.Context) {
-	// Implementation for updating an existing product
+	id := c.Param("id")
+	var input models.Product
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(400, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	var product models.Product
+	if err := p.DB.First(&product, id).Error; err != nil {
+		c.JSON(404, gin.H{"error": "Product not found"})
+		return
+	}
+
+	product.Name = input.Name
+	product.Description = input.Description
+	product.Price = input.Price
+	product.Stock = input.Stock
+	// Add other fields as needed
+
+	if err := p.DB.Save(&product).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Failed to update product"})
+		return
+	}
+	c.JSON(200, product)
 }
 
 func (p *Product) DeleteProduct(c *gin.Context) {
-	// Implementation for deleting a product
+	id := c.Param("id")
+	var product models.Product
+	if err := p.DB.First(&product, id).Error; err != nil {
+		c.JSON(404, gin.H{"error": "Product not found"})
+		return
+	}
+
+	if err := p.DB.Delete(&product).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Failed to delete product"})
+		return
+	}
+	c.JSON(200, gin.H{"message": "Product deleted successfully"})
 }

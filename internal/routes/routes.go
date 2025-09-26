@@ -24,9 +24,11 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	{
 		authenticated.GET("/user/me", userHandler.GetProfile)
 		authenticated.PUT("/user/me", userHandler.UpdateProfile)
-		authenticated.GET("/products", productHandler.ListProducts)
-		authenticated.GET("/products/:id", productHandler.GetProduct)
 	}
+
+	// Does not need to be authenticated
+	r.GET("/products", productHandler.ListProducts)
+	r.GET("/products/:id", productHandler.GetProduct)
 
 	onlyAdmin := authenticated.Group("/")
 	onlyAdmin.Use(auth.AdminOnly())
