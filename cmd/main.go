@@ -15,7 +15,14 @@ import (
 func main() {
 	cfg := config.LoadConfig()
 	auth.SetJwtKey(cfg.JWTSecret)
-	dsn := "host=localhost user=user password=mysecretpassword dbname=ecommerce port=5432 sslmode=disable"
+	
+	dsn := "host=" + dbHost +
+		" user=" + dbUser +
+		" password=" + dbPassword +
+		" dbname=" + dbName +
+		" port=" + dbPort +
+		" sslmode=disable"
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connect to database")
