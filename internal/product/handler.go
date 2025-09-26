@@ -2,13 +2,20 @@ package product
 
 import (
 	"net/http"
-	"github.com/ayo-69/e-commerce-backend/internal/models"
+
+	"e-commerce/internal/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 type ProductHandler struct {
 	DB *gorm.DB
+}
+
+func (h *ProductHandler) GetProducts(c *gin.Context) {
+	var products []models.Product
+	h.DB.Find(&products)
+	c.JSON(http.StatusOK, products)
 }
 
 func (h *ProductHandler) GetAllProducts(c *gin.Context) {

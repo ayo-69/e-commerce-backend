@@ -3,8 +3,8 @@ package auth
 import (
 	"net/http"
 
-	"github.com/ayo-69/e-commerce-backend/internal/models"
-	"github.com/ayo-69/e-commerce-backend/internal/utils"
+	"e-commerce/internal/models"
+	"e-commerce/internal/utils"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

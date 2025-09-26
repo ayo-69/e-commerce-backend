@@ -8,8 +8,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var JwtKey = []byte("supersecret") // same as jwt.go
-
 // AuthMiddleware checks if request has valid JWT 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -18,9 +16,10 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "Missing token",
 			})
+
+			c.Abort()
+			return 
 		}
-		c.Abort()
-		return 
 
 		// Expected format: "Bearer <token>"
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
@@ -34,7 +33,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		
 		claims := jwt.MapClaims{}
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			return JwtKey, nil
+			return jwtKey, nil
 		})
 		if err != nil || !token.Valid {
 			c.JSON(http.StatusUnauthorized, gin.H{
